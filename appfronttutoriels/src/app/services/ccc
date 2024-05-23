@@ -1,0 +1,78 @@
+const xlsx = require('xlsx');
+const xlsxPopulate = require('xlsx-populate');
+
+// Fonction pour lire et trier un fichier Excel
+function lireEtTrierFichierExcel(cheminFichier) {
+  // Lecture du fichier Excel
+  const classeur = xlsx.readFile(cheminFichier);
+
+  // Récupération de la première feuille de calcul
+  const feuille = classeur.Sheets['Feuille1'];
+
+  // Conversion de la feuille de calcul en tableau d'objets
+  const donnees = xlsx.utils.sheet_to_json(feuille);
+
+  // Tri des données par la colonne "SP" par ordre décroissant
+  donnees.sort((a, b) => b.SP - a.SP);
+
+  return donnees;
+}
+
+// Fonction pour comparer les listes de câblage et mettre en surbrillance les différences
+async function comparerEtMettreEnSurbrillanceListesCablage(cheminFichierAncien, cheminFichierNouveau, cheminFichierSortie) {
+  // Lecture et tri des anciennes et nouvelles listes de câblage
+  const ancienneListe = await lireEtTrierFichierExcel(cheminFichierAncien);
+  const nouvelleListe = await lireEtTrierFichierExcel(cheminFichierNouveau);
+
+  // Création d'une carte d'éléments de l'ancienne liste par ID
+  const mapIdAncienneListe = new Map();
+  for (const item of ancienneListe) {
+    mapIdAncienneListe.set(item.ID, item);
+  }
+
+  // Ouverture du fichier Excel de sortie en utilisant xlsx-populate
+  const classeur = xlsxPopulate.readXlsxFile(cheminFichierSortie);
+
+  // Récupération de la première feuille de calcul
+  const feuille = classeur.sheets[0];
+
+  // Remplissage rouge pour les différences
+  const remplissageRouge = {
+    type: 'pattern',
+    patternType: 'solid',
+    bgColor: '#FF0000'
+  };
+
+  // Parcours de la nouvelle liste de câblage
+  for (const nouvelItem of nouvelleListe) {
+    // Vérification si l'élément existe dans l'ancienne liste
+    const ancienItem = mapIdAncienneListe.get(nouvelItem.ID);
+
+    // Si l'élément est nouveau, le mettre en surbrillance en rouge
+    if (!ancienItem) {
+      const rangee = feuille.getRow(nouvelItem.Row - 1); // On utilise getRow pour récupérer la ligne
+      for (const cellule of rangee.cells) {
+        cellule.fill = remplissageRouge;
+      }
+    }
+  }
+
+  // Enregistrement du fichier Excel modifié
+  xlsxPopulate.writeXlsxFile(classeur, cheminFichierSortie);
+}
+
+// Fonction principale
+async function main() {
+  // Chemins des fichiers
+  const cheminFichierAncien = 'ancienne_liste_cablage.xlsx';
+  const cheminFichierNouveau = 'nouvelle_liste_cablage.xlsx';
+  const cheminFichierSortie = 'differences_mises_en_surbrillance.xlsx';
+
+  // Comparaison et mise en surbrillance des différences
+  await comparerEtMettreEnSurbrillanceListesCablage(cheminFichierAncien, cheminFichierNouveau, cheminFichierSortie);
+
+  console.log('Différences mises en surbrillance dans le fichier:', cheminFichierSortie);
+}
+
+// Appel de la fonction principale
+main();

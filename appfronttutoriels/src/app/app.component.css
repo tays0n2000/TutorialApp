@@ -1,0 +1,33 @@
+.framework-info {
+    margin-top: 20px;
+  }
+  
+  .framework-info h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .framework-info > div {
+    margin-bottom: 20px;
+  }
+  
+  .framework-info > div h3 {
+    font-size: 20px;
+    margin-bottom: 5px;
+  }
+  
+  .framework-info > div img {
+    width: 100px; /* Ajustez la taille de l'image selon vos préférences */
+    margin-bottom: 10px;
+  }
+  
+  .framework-info > div p {
+    font-size: 16px;
+    line-height: 1.5;
+    background-image: url('../assets/fond11.jpg'); /* Remplacez 'chemin/vers/votre/image.jpg' par le chemin de votre image */
+    background-size: cover; /* Pour que l'image de fond couvre toute la zone visible */
+    background-position: center; /* Pour centrer l'image de fond */
+    background-repeat: no-repeat; /* Pour empêcher la répétition de l'image de fond */
+  }
+  
